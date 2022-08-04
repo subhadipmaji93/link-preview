@@ -1,9 +1,7 @@
 const server = require('http').createServer;
-const httpRequest = require('http').get;
-const httpsRequest = require('https').get;
 const fs = require('fs');
 const url = require('url');
-const {isValidUrl, metas} = require("./handler");
+const {fetch, isValidUrl} = require("./handler");
 
 server((request, response)=>{
     let urlObj = url.parse(request.url, true);
@@ -21,47 +19,26 @@ server((request, response)=>{
     }
     if(urlObj.pathname === "/fetch"){
         let queryUrl = urlObj.query.url;
+        // console.log('url:' + queryUrl);
         if(!isValidUrl(queryUrl)){
             response.writeHead(200, {
                 "Content-Type" : "application/json"
             });
-            response.end(JSON.stringify({success: false, message: "Url malformed"}));
+            response.end(JSON.stringify({success: false, message: "Url Invalid OR Unable to fetch!!"}));
             return;
         }
-        let request;
-        queryUrl.startsWith("http://") ? request = httpRequest : request = httpsRequest;
-        const fetch = request(queryUrl, (res)=>{
-            if(res.statusCode !== 200){
+        fetch(queryUrl, (err, res)=>{
+            if(err){
                 response.writeHead(200, {
                     "Content-Type" : "application/json"
                 });
-                response.end(JSON.stringify({success: false, message: "Request Failed!!"}));
-                res.resume();
+                response.end(JSON.stringify({success: false, message: err.message}));
                 return;
             }
-            let chunks = [];
-            res.on("readable", ()=>{
-                let chunk;
-                while((null !== (chunk = res.read()))){
-                    chunks.push(chunk);
-                }
-            });
-            res.on("end", ()=>{
-                let body = Buffer.concat(chunks);
-                let data = metas(body.toString());
-                response.writeHead(200, {
-                    "Content-Type" : "application/json"
-                });
-                response.end(JSON.stringify({success:true, data:data}));
-
-            }).on("error", (e)=>console.log(e.code));
-        })
-        .on("error", (e)=>{
             response.writeHead(200, {
                 "Content-Type" : "application/json"
             });
-            response.end(JSON.stringify({success:false, message:"Request Failed!!"}));
-        })
-        fetch.end();
+            response.end(JSON.stringify({success: true, data:res.data}));
+        });
     }
 }).listen(8000, ()=>console.log("App Running on 8000"));

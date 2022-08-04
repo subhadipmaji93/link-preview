@@ -99,10 +99,9 @@
     function getData(){
         cardBody.style.display = "none";
         errorMessage.style.display = "none";
-        fetch(`/fetch?url=${url.value}`)
+        fetch('/fetch?' + new URLSearchParams({url:queryUrl.value}))
         .then((res)=>res.json())
         .then(res=>{
-            console.log(res);
             if(!res.success){
                 errorMessage.innerText = res.message;
                 errorMessage.style.display = "block";
