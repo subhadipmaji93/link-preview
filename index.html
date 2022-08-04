@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Preview</title>
+    <style>
+        .container, h2, .error{
+            padding:auto;
+            margin: auto;
+            margin-bottom:10px;
+            text-align:center;
+            }
+        .link {
+            background: rgb(221, 221, 221);
+            padding: 2px;
+        }
+        .error {
+            display: none;
+        }
+        .wrapper {
+            display: none;
+            border-radius: 5px;
+            background: #fff;
+            position: relative;
+            margin: auto;
+            margin-bottom:5px;
+            width: 300px;
+            height: auto;
+            overflow: hidden;
+            box-shadow: 0px 10px 25px #999;
+        }
+        .pic {
+            width: 100%;
+            background: no-repeat;
+            background-size: 400px;
+            background-position: center;
+            padding: 0 0 20px 0;
+            margin-bottom: 0px;
+        }
+        p.header {
+            padding: 0 20px;
+            font-size: 18px;
+            font-weight: bold;
+            font-style: italic;
+        }
+        p.header {
+            padding: 0 10px;
+            font-size: 18px;
+            font-weight: bold;
+            font-style: italic;
+        }
+        p.content{
+            padding-left: 8px;
+        }
+        a .url-link {
+            height: 40px;
+            width: 100px;
+            float: right;
+            line-height: 40px;
+            background-color: #1B98F5;
+            margin: 20px;
+            font-size: 12px;
+            border-radius: 5px;
+            text-align: center;
+            color: #fff;
+            font-size: 1em;
+        }
+        a .url-link:hover {
+            background-color: #5eb3f5;
+        }
+
+    </style>
+</head>
+<body>
+   <h2>Link Preview</h2>
+   <div class="container">
+    <span class="link">Link</span>
+    <input type="text" value="" id="url">
+    <input type="submit" value="FETCH" onclick="getData()">
+  </div>
+  <p class="error"></p>
+  <div class="wrapper">
+    <img class="pic" src=""></img>
+    <p class="header"></p>
+    <p class="content"></p>
+    <a href="">
+      <div class="url-link"><b>Link</b></i></div>
+    </a>
+  </div>
+
+
+</body>
+<script>
+    let queryUrl = document.getElementById("url");
+    let errorMessage = document.querySelector(".error");
+    let cardBody = document.querySelector(".wrapper");
+    function getData(){
+        cardBody.style.display = "none";
+        errorMessage.style.display = "none";
+        fetch(`/fetch?url=${url.value}`)
+        .then((res)=>res.json())
+        .then(res=>{
+            console.log(res);
+            if(!res.success){
+                errorMessage.innerText = res.message;
+                errorMessage.style.display = "block";
+                return;
+            }
+            cardBody.querySelector(".pic").setAttribute("src", res.data.image?res.data.image:"");
+            cardBody.querySelector(".header").innerText = res.data.siteName?res.data.siteName:"";
+            cardBody.querySelector(".content").innerText = res.data.description?res.data.description:"";
+            cardBody.querySelector("a").setAttribute("href", res.data.url?res.data.url:"");
+            cardBody.style.display = "block";
+        });
+    }
+</script>
+</html>
